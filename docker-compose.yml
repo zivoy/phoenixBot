@@ -2,8 +2,23 @@ version: "3.9"
 
 services:
   discord-bot:
-    build: .
+    build: ./discord
     env_file:
-      - .env
+      - main.env
+      - discord.env
+    depends_on:
+      - nats
+
+  manager:
+    build: ./manager
+    env_file:
+      - main.env
     ports:
       - "8080:8080"
+    depends_on:
+      - nats
+
+  nats:
+    image: nats
+    ports:
+      - "8222:8222"

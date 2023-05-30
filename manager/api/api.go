@@ -1,22 +1,13 @@
 package api
 
-// idealy this should be its own program, bot can should only handle interactions with discord
-
+// todo switch to echo
 import (
 	"fmt"
+	"github.com/ant0ine/go-json-rest/rest"
 	"log"
 	"net/http"
-	"phoenixDiscordBot/discord"
-	"strings"
-
-	"github.com/ant0ine/go-json-rest/rest"
+	"phoenixManager/nats"
 )
-
-type discordVerify struct {
-	DiscordName string `json:"discord_name,omitempty"`
-	DiscordID   string `json:"discord_id,omitempty"`
-	RSICode     string `json:"code"`
-}
 
 func StartApi() {
 	api := rest.NewApi()
@@ -42,37 +33,28 @@ func StartApi() {
 }
 
 func verifyPost(w rest.ResponseWriter, r *rest.Request) {
-	req := &discordVerify{}
+	req := &nats.DiscordVerifyRequest{}
 	err := r.DecodeJsonPayload(req)
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if req.RSICode == "" {
-		rest.Error(w, "code is required", 400)
+		rest.Error(w, "code is required", http.StatusBadRequest)
 		return
 	}
 	if req.DiscordName == "" && req.DiscordID == "" {
-		rest.Error(w, "discord_name or discord_name are required", 400)
+		rest.Error(w, "discord_name or discord_name are required", http.StatusBadRequest)
 		return
 	}
 
-	if req.DiscordID == "" {
-		parts := strings.SplitN(req.DiscordName, "#", 2)
-		if len(parts) < 2 {
-			rest.Error(w, "discriminator not provided", 400)
-			return
-		}
-		fmt.Println(parts)
-
-		req.DiscordID, err = discord.FindUser(parts[0], parts[1])
-		if err != nil {
-			rest.Error(w, "cannot find user", 404)
-			return
-		}
+	user, err := nats.Gateway.VerifyUser(req)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	if err = discord.VerifyUser(req.DiscordID, req.RSICode); err != nil {
+	if user.Error != "" {
 		_ = w.WriteJson(map[string]string{
 			"success": "false",
 			"error":   err.Error(),
@@ -82,6 +64,6 @@ func verifyPost(w rest.ResponseWriter, r *rest.Request) {
 
 	_ = w.WriteJson(map[string]string{
 		"success":    "true",
-		"discord_id": req.DiscordID,
+		"discord_id": user.DiscordID,
 	})
 }

@@ -17,7 +17,7 @@ var Gateway Connector
 func Connect() {
 	uri := os.Getenv("NATS_URI")
 	if uri == "" {
-		panic("NATS_URI not provided")
+		log.Fatal("NATS_URI not provided")
 	}
 
 	var err error
@@ -29,6 +29,6 @@ func Connect() {
 	fmt.Println("Connected to NATS at:", Gateway.nc.ConnectedUrl())
 }
 
-func Disconnect() {
-	Gateway.nc.Close()
+func Disconnect() error {
+	return Gateway.nc.Drain()
 }

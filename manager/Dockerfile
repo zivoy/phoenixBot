@@ -1,9 +1,9 @@
 FROM golang:alpine as BUILDER
 WORKDIR /build
 
-COPY .. .
+COPY . .
 
-RUN go build -o app
+RUN CGO_ENABLED=0 go build -o app -ldflags="-w -s"
 
 FROM scratch
 WORKDIR /app

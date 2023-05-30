@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"phoenixManager/api"
 	"phoenixManager/nats"
@@ -22,4 +25,10 @@ func main() {
 	<-sc
 
 	fmt.Sprintln("shutting down")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	api.Shutdown(ctx)
+	log.Fatal(nats.Disconnect())
 }

@@ -22,7 +22,7 @@ func (c Connector) VerifyUser(discord *DiscordVerifyRequest) (*DiscordVerifyResp
 		return nil, err
 	}
 
-	response, err := c.nc.Request("discord.function.verify-rsi", marshal, 100*time.Millisecond)
+	response, err := c.nc.Request("discord.function.verify-rsi", marshal, 500*time.Millisecond)
 	//if err == nats.ErrNoResponders || err == nats.ErrTimeout
 	if err != nil {
 		return nil, err

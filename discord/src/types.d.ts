@@ -31,6 +31,7 @@ declare global {
     namespace NodeJS {
         interface ProcessEnv {
             DISCORD_TOKEN: string|undefined,
+            NATS_URI: string,
         }
     }
 }

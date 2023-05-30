@@ -1,69 +1,42 @@
 package api
 
-// todo switch to echo
 import (
+	"context"
 	"fmt"
-	"github.com/ant0ine/go-json-rest/rest"
-	"log"
 	"net/http"
-	"phoenixManager/nats"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
+type echoServer struct {
+	e *echo.Echo
+}
+
+var server echoServer
+
 func StartApi() {
-	api := rest.NewApi()
-	api.Use(
-		&rest.RecoverMiddleware{
-			EnableResponseStackTrace: true,
-		},
-		&rest.ContentTypeCheckerMiddleware{},
-	)
-	router, err := rest.MakeRouter(
-		rest.Post("/verify", verifyPost),
-	)
-	if err != nil {
-		log.Fatal(err)
+	server.e = echo.New()
+	server.e.HideBanner = true
+	echo.NotFoundHandler = func(c echo.Context) error {
+		return c.String(http.StatusNotFound, "")
 	}
 
-	api.SetApp(router)
+	server.e.Use(middleware.Logger(), middleware.Recover())
+
+	server.e.GET("/", home)
+	server.e.POST("/verify", verifyPost)
 
 	go func() {
 		fmt.Print("Api is now running")
-		log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
+		if err := server.e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+			server.e.Logger.Fatal("shutting down the server")
+		}
 	}()
 }
 
-func verifyPost(w rest.ResponseWriter, r *rest.Request) {
-	req := &nats.DiscordVerifyRequest{}
-	err := r.DecodeJsonPayload(req)
-	if err != nil {
-		rest.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func Shutdown(ctx context.Context) {
+	if err := server.e.Shutdown(ctx); err != nil {
+		server.e.Logger.Fatal(err)
 	}
-	if req.RSICode == "" {
-		rest.Error(w, "code is required", http.StatusBadRequest)
-		return
-	}
-	if req.DiscordName == "" && req.DiscordID == "" {
-		rest.Error(w, "discord_name or discord_name are required", http.StatusBadRequest)
-		return
-	}
-
-	user, err := nats.Gateway.VerifyUser(req)
-	if err != nil {
-		rest.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if user.Error != "" {
-		_ = w.WriteJson(map[string]string{
-			"success": "false",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	_ = w.WriteJson(map[string]string{
-		"success":    "true",
-		"discord_id": user.DiscordID,
-	})
 }

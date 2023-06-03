@@ -1,0 +1,2 @@
+# Teamspeak bot
+todo

@@ -4,7 +4,7 @@ import {client} from "./bot";
 import process from "process";
 
 const token = process.env.DISCORD_TOKEN;
-if (token === undefined) {
+if (!token) {
     console.error("discord token not provided");
     process.exit(1);
 }

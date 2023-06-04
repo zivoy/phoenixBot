@@ -22,3 +22,10 @@ services:
     image: nats
     ports:
       - "8222:8222"
+
+networks:
+  internet:
+    driver: bridge
+  ts-net:
+    external: true
+    name: "teamspeak-connection"

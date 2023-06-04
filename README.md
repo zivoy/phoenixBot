@@ -22,12 +22,13 @@ api end points for 3rd party integrations
 run 
 make sure that there is a .env file that has the discord token and run to bring up the entire system
 ```bash
+docker compose -f ./docker-compose.teamspeak.yml up -d
 docker compose up
 ```
 
 for deployment and updating use
 ```bash
-docker compose up -d
+docker compose -f ./docker-compose.teamspeak.yml -f ./docker-compose.yml up -d
 ```
 
 

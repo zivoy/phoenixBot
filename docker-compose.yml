@@ -20,8 +20,8 @@ services:
 
   nats:
     image: nats
-    ports:
-      - "8222:8222"
+#    ports:
+#      - "8222:8222"
 
 networks:
   internet:

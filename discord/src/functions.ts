@@ -15,7 +15,7 @@ export function getUser(client: Client, nameOrId: string, deliminator: string | 
                 }
             });
             // fetch list
-            guild.members.list().then(users => {
+            guild.members.fetch().then(users => {
                 users.forEach(value => {
                     if ((deliminator === undefined && value.user.id === nameOrId) ||
                         (value.user.username == nameOrId && value.user.discriminator == deliminator)) {

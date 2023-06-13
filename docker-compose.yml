@@ -63,7 +63,7 @@ services:
     image: caddy
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
       - "443:443/udp"
     volumes:
@@ -71,19 +71,21 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       # source folder can be moved elsewhere
-      - ./website:/var/www/html
+      - ../xxx/src:/var/www/html
 
   php-fpm:
     image: php:8.1-fpm
     volumes:
-      - ./website:/var/www/html
+      - ../xxx/src:/var/www/html
 
 volumes:
   caddy_data:
+    name: phoenixbot_caddy_data
     external: true
   caddy_config:
 
   teamspeakdb:
+    name: phoenixbot_teamspeakdb
     external: true # has to be created, but will survive compose shutdown
 
 networks:

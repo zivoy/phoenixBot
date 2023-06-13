@@ -70,6 +70,13 @@ services:
       - $PWD/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+      # source folder can be moved elsewhere
+      - ./website:/var/www/html
+
+  php-fpm:
+    image: php:8.1-fpm
+    volumes:
+      - ./website:/var/www/html
 
 volumes:
   caddy_data:
@@ -77,7 +84,7 @@ volumes:
   caddy_config:
 
   teamspeakdb:
-    external: true # has to be connected, but will survive compose shutdown
+    external: true # has to be created, but will survive compose shutdown
 
 networks:
   db-network:

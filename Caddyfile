@@ -1,0 +1,8 @@
+# replace with domain and have the 80 go to 443
+:80 {
+    handle_path /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    respond "website reverse proxy here"
+}

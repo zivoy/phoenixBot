@@ -59,7 +59,23 @@ services:
 #    ports:
 #      - "8222:8222"
 
+  caddy:
+    image: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
+  caddy_data:
+    external: true
+  caddy_config:
+
   teamspeakdb:
     external: true # has to be connected, but will survive compose shutdown
 

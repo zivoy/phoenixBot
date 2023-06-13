@@ -8,19 +8,13 @@ services:
       - discord.env
     depends_on:
       - nats
-    networks:
-      - internal
 
   manager:
     build: ./manager
     env_file:
       - main.env
-#    ports:
-#      - "8080:8080"
     depends_on:
       - nats
-    networks:
-      - internal
 
   teamspeak:
     image: teamspeak
@@ -39,9 +33,7 @@ services:
       TS3SERVER_LICENSE: accept
     depends_on:
       - db
-    networks:
-      - db-network
-      - internal
+
   db:
     image: mariadb
     restart: always
@@ -49,15 +41,11 @@ services:
       # this doesnt matter, the db isnt connected to the internet
       MYSQL_ROOT_PASSWORD: teamspeakDBPassword
       MYSQL_DATABASE: teamspeak
-    networks:
-      - db-network
     volumes:
       - teamspeakdb:/var/lib/mysql
 
   nats:
     image: nats
-#    ports:
-#      - "8222:8222"
 
   caddy:
     image: caddy
@@ -86,11 +74,11 @@ volumes:
 
   teamspeakdb:
     name: phoenixbot_teamspeakdb
-    external: true # has to be created, but will survive compose shutdown
+    external: true
 
-networks:
-  db-network:
-    driver: bridge
-    internal: true
-  internal:
-    driver: bridge
+#networks:
+#  db-network:
+#    driver: bridge
+#    internal: true
+#  internal:
+#    driver: bridge

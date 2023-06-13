@@ -35,6 +35,7 @@ services:
 
 volumes:
   teamspeakdb:
+    external: true
 
 networks:
   no-internet:

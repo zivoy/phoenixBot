@@ -8,24 +8,64 @@ services:
       - discord.env
     depends_on:
       - nats
+    networks:
+      - internal
 
   manager:
     build: ./manager
     env_file:
       - main.env
-    ports:
-      - "8080:8080"
+#    ports:
+#      - "8080:8080"
     depends_on:
       - nats
+    networks:
+      - internal
+
+  teamspeak:
+    image: teamspeak
+    restart: always
+    ports:
+      - "9987:9987/udp"
+      - "30033:30033"
+    environment:
+      TS3SERVER_DB_PLUGIN: ts3db_mariadb
+      TS3SERVER_DB_SQLCREATEPATH: create_mariadb
+      TS3SERVER_DB_HOST: db
+      TS3SERVER_DB_USER: root
+      TS3SERVER_DB_PASSWORD: teamspeakDBPassword
+      TS3SERVER_DB_NAME: teamspeak
+      TS3SERVER_DB_WAITUNTILREADY: 30
+      TS3SERVER_LICENSE: accept
+    depends_on:
+      - db
+    networks:
+      - db-network
+      - internal
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      # this doesnt matter, the db isnt connected to the internet
+      MYSQL_ROOT_PASSWORD: teamspeakDBPassword
+      MYSQL_DATABASE: teamspeak
+    networks:
+      - db-network
+    volumes:
+      - teamspeakdb:/var/lib/mysql
 
   nats:
     image: nats
 #    ports:
 #      - "8222:8222"
 
+volumes:
+  teamspeakdb:
+    external: true # has to be connected, but will survive compose shutdown
+
 networks:
-  internet:
+  db-network:
     driver: bridge
-  ts-net:
-    external: true
-    name: "teamspeak-connection"
+    internal: true
+  internal:
+    driver: bridge

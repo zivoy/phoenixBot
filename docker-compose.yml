@@ -29,7 +29,7 @@ services:
       TS3SERVER_DB_SQLCREATEPATH: create_mariadb
       TS3SERVER_DB_HOST: db
       TS3SERVER_DB_USER: root
-      TS3SERVER_DB_PASSWORD: 
+      TS3SERVER_DB_PASSWORD:
       TS3SERVER_DB_NAME: teamspeak
       TS3SERVER_DB_WAITUNTILREADY: 30
       TS3SERVER_LICENSE: accept
@@ -40,8 +40,7 @@ services:
     image: mariadb
     restart: always
     environment:
-      # this doesnt matter, the db isnt connected to the internet
-      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE: teamspeak
     volumes:
       - teamspeakdb:/var/lib/mysql
@@ -73,14 +72,14 @@ services:
   phpmyadmin:
     image: phpmyadmin
     restart: always
-    depends_on: 
+    depends_on:
       - db
     environment:
       PMA_HOST: db
-      MYSQL_PASSWORD: 
+      MYSQL_PASSWORD:
       PMA_ABSOLUTE_URI: https://php.phx.ziv.shalit.name/
       PMA_USER: dbadmin
-      PMA_PASSWORD: 
+      PMA_PASSWORD:
 
 volumes:
   caddy_data:

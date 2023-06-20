@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"github.com/labstack/gommon/bytes"
 	"log"
 	"net/http"
 	"strconv"

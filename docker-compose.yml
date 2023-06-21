@@ -15,6 +15,8 @@ services:
       - main.env
     depends_on:
       - nats
+    volumes:
+      - images:/app/images
 
   teamspeak:
     image: teamspeak
@@ -27,7 +29,7 @@ services:
       TS3SERVER_DB_SQLCREATEPATH: create_mariadb
       TS3SERVER_DB_HOST: db
       TS3SERVER_DB_USER: root
-      TS3SERVER_DB_PASSWORD: teamspeakDBPassword
+      TS3SERVER_DB_PASSWORD: 
       TS3SERVER_DB_NAME: teamspeak
       TS3SERVER_DB_WAITUNTILREADY: 30
       TS3SERVER_LICENSE: accept
@@ -39,7 +41,7 @@ services:
     restart: always
     environment:
       # this doesnt matter, the db isnt connected to the internet
-      MYSQL_ROOT_PASSWORD: teamspeakDBPassword
+      MYSQL_ROOT_PASSWORD: 
       MYSQL_DATABASE: teamspeak
     volumes:
       - teamspeakdb:/var/lib/mysql
@@ -51,20 +53,34 @@ services:
     image: caddy
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "80:80"
       - "443:443"
       - "443:443/udp"
     volumes:
-      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
       # source folder can be moved elsewhere
-      - ../xxx/src:/var/www/html
+      - /home/Bleifish/xxx/src:/var/www/html
 
   php-fpm:
-    image: php:8.1-fpm
+    build: ./website
     volumes:
-      - ../xxx/src:/var/www/html
+      - /home/Bleifish/xxx/src:/var/www/html
+    depends_on:
+      - db
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    depends_on: 
+      - db
+    environment:
+      PMA_HOST: db
+      MYSQL_PASSWORD: 
+      PMA_ABSOLUTE_URI: https://php.phx.ziv.shalit.name/
+      PMA_USER: dbadmin
+      PMA_PASSWORD: 
 
 volumes:
   caddy_data:
@@ -74,6 +90,10 @@ volumes:
 
   teamspeakdb:
     name: phoenixbot_teamspeakdb
+    external: true
+
+  images:
+    name: phoenixbot_images
     external: true
 
 #networks:

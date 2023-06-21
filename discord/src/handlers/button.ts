@@ -1,10 +1,11 @@
 import {ButtonInteraction} from "discord.js";
-import {VerifyButtonID} from "../consts";
+import {VerifyButtonID, VerifyList} from "../consts";
 import {request} from "http";
 
 export default async function (interaction: ButtonInteraction) {
     switch (interaction.customId) {
         case VerifyButtonID:
+            console.log(`${interaction.user.username} finished auth`)
             let u = new URL(process.env.VERIFYURL || "http://localhost:80/reload-rsi")
             let req = request({
                 host: u.host,
@@ -15,9 +16,14 @@ export default async function (interaction: ButtonInteraction) {
                     "Content-Type": "application/json",
                 }
             }, (r) => {
-                console.log(r);
+                console.log("callback: ", r.statusCode);
             });
-            req.write(JSON.stringify({verified: interaction.user.id})) //todo also return which code so lookup is easier
+
+            let verified = {verified: interaction.user.id, code: ""}
+            if (verified.verified in VerifyList) {
+                verified.code = VerifyList[verified.verified]
+            }
+            req.write(JSON.stringify(verified))
             req.end();
             await interaction.update({components: []})
             break;

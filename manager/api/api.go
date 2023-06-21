@@ -27,6 +27,18 @@ func StartApi() {
 	server.e.GET("/", home)
 	server.e.POST("/verify", verifyPost)
 
+	image := server.e.Group("/images")
+	{
+		image.GET("/", imageInstructions)
+		image.GET("/:id", getImage)
+		image.GET("/list", getImageList)
+		image.GET("/upload", imageUploadInstructions)
+		image.GET("/delete", imageDeleteInstructions)
+
+		image.POST("/upload", imageUpload, imageAuthPerm)
+		image.POST("/delete", imageDelete, imageAuthPerm)
+	}
+
 	go func() {
 		fmt.Print("Api is now running")
 		if err := server.e.Start(":8080"); err != nil && err != http.ErrServerClosed {

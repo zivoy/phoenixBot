@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"phoenixManager/files"
 	"syscall"
 	"time"
 
@@ -29,6 +30,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	files.StopCleaning()
 	api.Shutdown(ctx)
 	log.Fatal(nats.Disconnect())
 }

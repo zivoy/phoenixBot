@@ -6,23 +6,23 @@ export function getUser(client: Client, name: string, deliminator: string): Prom
 export function getUser(client: Client, nameOrId: string, deliminator: string | undefined = undefined): Promise<GuildMember> {
     return new Promise<GuildMember>((resolve, reject) => {
         client.guilds.cache.forEach((guild) => {
-            // check cache
-            guild.members.cache.forEach(value => {
-                if ((deliminator === undefined && value.user.id === nameOrId) ||
-                    (value.user.username == nameOrId && value.user.discriminator == deliminator)) {
+            const isUser = (value: GuildMember) => {
+                if (deliminator === undefined && value.user.id === nameOrId) {
                     resolve(value);
                     return;
                 }
-            });
+                if (value.user.username == nameOrId && (value.user.discriminator == "0" || value.user.discriminator == deliminator)) { // discriminator will be removed completely at some point
+                    resolve(value);
+                    return;
+                }
+            }
+
+            // check cache
+            guild.members.cache.forEach(isUser);
             // fetch list
-            guild.members.fetch().then(users => {
-                users.forEach(value => {
-                    if ((deliminator === undefined && value.user.id === nameOrId) ||
-                        (value.user.username == nameOrId && value.user.discriminator == deliminator)) {
-                        resolve(value);
-                        return;
-                    }
-                });
+            const query = deliminator == undefined ? {user: [nameOrId]} : {query: nameOrId}
+            guild.members.fetch(query).then(users => {
+                users.forEach(isUser);
                 reject("not found");
             });
         })

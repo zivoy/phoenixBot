@@ -16,7 +16,11 @@ type DiscordVerifyResponse struct {
 	Error     string `json:"error,omitempty"`
 }
 
-func (c Connector) VerifyUser(discord *DiscordVerifyRequest) (*DiscordVerifyResponse, error) {
+func (c *Connector) VerifyUser(discord *DiscordVerifyRequest) (*DiscordVerifyResponse, error) {
+	if err := c.verifyConnected(); err != nil {
+		return nil, err
+	}
+
 	marshal, err := json.Marshal(discord)
 	if err != nil {
 		return nil, err

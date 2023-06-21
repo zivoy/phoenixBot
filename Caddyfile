@@ -1,10 +1,33 @@
 # replace with domain and have the 80 go to 443
-:80 {
-    handle_path /api/* {
-        reverse_proxy localhost:8080
-    }
+:80, phx.ziv.shalit.name, cake.phoenixempire.space {
+	handle_path /api/* {
+		reverse_proxy manager:8080
+	}
 
-    root * /var/www/html/
-    php_fastcgi php-fpm:9000
-    file_server
+	root * /var/www/html/webroot/
+	handle /.well-known/* {
+		uri strip_prefix /.well-known
+	}
+
+	handle_errors {
+		@404 expression `{err.status_code} == 404`
+		handle @404 {
+			rewrite * /index.php
+			php_fastcgi php-fpm:9000
+		}
+
+		handle {
+			respond '{err.status_code}'
+		}
+	}
+
+	php_fastcgi php-fpm:9000
+	file_server
+}
+
+php.phx.ziv.shalit.name {
+	basicauth /* {
+		dbadmin $2a$14$zwvRVZjRK3z9EVRSZLM8..8Ed5k8P06cFBjwP2JNhcIzQp6vafdH6
+	}
+	reverse_proxy phpmyadmin:80
 }

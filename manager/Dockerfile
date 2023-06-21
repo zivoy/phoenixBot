@@ -1,14 +1,16 @@
 FROM golang:alpine as BUILDER
 WORKDIR /build
 
+RUN apk add build-base
+
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o app -ldflags="-w -s"
+RUN CGO_ENABLED=1 go build -o app -ldflags="-w -s"
 
-FROM scratch
+FROM alpine
 WORKDIR /app
 
-COPY --from=BUILDER /build/app ./bot
+COPY --from=BUILDER /build/app ./manager
 
 EXPOSE 8080
-ENTRYPOINT ["/app/bot"]
+ENTRYPOINT ["/app/manager"]

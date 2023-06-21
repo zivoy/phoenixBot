@@ -7,7 +7,11 @@ const jc = JSONCodec()
 
 export async function ConnectNatsListener(natsAddress:string) {
     try {
-        nc = await connect({servers: natsAddress});
+        nc = await connect({
+            name: "Discord bot",
+            pingInterval: 60*1000, // ping once a minute
+            servers: natsAddress
+        });
     }
     catch  {
         console.error("error connecting to nats")

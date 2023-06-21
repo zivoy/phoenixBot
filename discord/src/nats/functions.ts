@@ -16,7 +16,7 @@ const functions: { [name: string]: nRPCFunction } = {
                     reject("user not found")
                     return
                 }
-            else if (data.discord_name!= undefined) {
+            else if (data.discord_name != undefined) {
                 let parts = data.discord_name.split("#")
                 if (parts.length < 2) {
                     if (!/^[a-z0-9._]{2,32}$/.test(data.discord_name)) {
